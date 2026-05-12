@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connect to Wi-Fi</title>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: rgba(255, 255, 255, 0.12);
+      --card-border: rgba(255, 255, 255, 0.22);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --success: #22c55e;
+      --warning: #facc15;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.35), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.22), transparent 35%),
+        linear-gradient(135deg, #020617, var(--bg));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 28px;
+      box-shadow: 0 24px 80px var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      text-align: center;
+    }
+
+    .wifi-icon {
+      width: 76px;
+      height: 76px;
+      margin: 0 auto 18px;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      font-size: 38px;
+    }
+
+    h1 {
+      font-size: 30px;
+      line-height: 1.15;
+      margin: 0 0 10px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+      margin: 0 0 24px;
+    }
+
+    .info-box {
+      text-align: left;
+      background: rgba(15, 23, 42, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .row:last-child {
+      border-bottom: none;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .value {
+      font-size: 15px;
+      font-weight: 700;
+      text-align: right;
+      word-break: break-word;
+    }
+
+    .password-value {
+      letter-spacing: 0.05em;
+    }
+
+    .button {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 15px 18px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+      margin-top: 10px;
+    }
+
+    .button:active {
+      transform: scale(0.98);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 14px 30px rgba(2, 132, 199, 0.35);
+    }
+
+    .secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .qr-card {
+      margin-top: 20px;
+      padding: 18px;
+      border-radius: 22px;
+      background: white;
+      display: none;
+    }
+
+    .qr-card.show {
+      display: block;
+    }
+
+    #qrcode {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .qr-note {
+      color: #334155;
+      font-size: 13px;
+      margin: 14px 0 0;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .instructions {
+      margin-top: 20px;
+      text-align: left;
+      background: rgba(250, 204, 21, 0.12);
+      border: 1px solid rgba(250, 204, 21, 0.25);
+      border-radius: 18px;
+      padding: 16px;
+      color: #fef9c3;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .instructions strong {
+      color: #fff7ad;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(120px);
+      background: rgba(15, 23, 42, 0.94);
+      color: white;
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform 0.25s ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+      color: rgba(255, 255, 255, 0.58);
+      font-size: 12px;
+    }
+
+    @media (max-width: 420px) {
+      .card {
+        padding: 24px 18px;
+        border-radius: 24px;
+      }
+
+      h1 {
+        font-size: 27px;
+      }
+
+      .row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .value {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="card">
+      <div class="wifi-icon">📶</div>
+
+      <h1>Connect to Wi-Fi</h1>
+      <p class="subtitle">
+        Copy the password below, then join the network from your phone’s Wi-Fi settings.
+      </p>
+
+      <div class="info-box">
+        <div class="row">
+          <div class="label">Network name</div>
+          <div class="value" id="wifiNameText"></div>
+        </div>
+
+        <div class="row">
+          <div class="label">Password</div>
+          <div class="value password-value" id="wifiPasswordText"></div>
+        </div>
+      </div>
+
+      <button class="button primary" onclick="copyPassword()">
+        Copy Wi-Fi Password
+      </button>
+
+      <button class="button secondary" onclick="toggleQrCode()">
+        Show QR Code
+      </button>
+
+      <div class="qr-card" id="qrCard">
+        <div id="qrcode"></div>
+        <p class="qr-note">
+          Scan this QR code using another phone’s camera to join the Wi-Fi network.
+        </p>
+      </div>
+
+      <div class="instructions">
+        <strong>How to join:</strong><br />
+        iPhone: Settings → Wi-Fi → select network → paste password.<br />
+        Android: Wi-Fi settings → select network → paste password.
+      </div>
+    </section>
+
+    <div class="footer">
+      Powered by NFC tap
+    </div>
+  </main>
+
+  <div class="toast" id="toast">Password copied</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    /*
+      Replace these values with your real Wi-Fi details.
+      Keep the quotes.
+    */
+    const WIFI_NAME = "ItAllStarts";
+    const WIFI_PASSWORD = "withazero";
+    const WIFI_SECURITY = "WPA"; // Usually WPA. Use nopass only for open Wi-Fi.
+
+    const wifiNameText = document.getElementById("wifiNameText");
+    const wifiPasswordText = document.getElementById("wifiPasswordText");
+    const qrCard = document.getElementById("qrCard");
+    const toast = document.getElementById("toast");
+
+    wifiNameText.textContent = WIFI_NAME;
+    wifiPasswordText.textContent = WIFI_PASSWORD;
+
+    function escapeWifiValue(value) {
+      return String(value)
+        .replace(/\\/g, "\\\\")
+        .replace(/;/g, "\\;")
+        .replace(/,/g, "\\,")
+        .replace(/:/g, "\\:");
+    }
+
+    const wifiQrText = `WIFI:T:${WIFI_SECURITY};S:${escapeWifiValue(WIFI_NAME)};P:${escapeWifiValue(WIFI_PASSWORD)};;`;
+
+    let qrGenerated = false;
+
+    function toggleQrCode() {
+      qrCard.classList.toggle("show");
+
+      if (!qrGenerated) {
+        new QRCode(document.getElementById("qrcode"), {
+          text: wifiQrText,
+          width: 210,
+          height: 210,
+          correctLevel: QRCode.CorrectLevel.H
+        });
+
+        qrGenerated = true;
+      }
+    }
+
+    async function copyPassword() {
+      try {
+        await navigator.clipboard.writeText(WIFI_PASSWORD);
+        showToast("Password copied");
+      } catch (error) {
+        showToast("Could not copy. Long-press password instead.");
+      }
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2200);
+    }
+  </script>
+</body>
+</html>
